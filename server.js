@@ -57,3 +57,24 @@ app.get('/methadone/:hn', async (req, res) => {
         return res.status(500).send();
     }
 })
+
+app.get('/vst/:vn', async (req, res) => {
+    const vn = req.params.vn
+
+    try {
+        connection.query('SELECT opdscreen.vn,opdscreen.bpd,opdscreen.bps,opdscreen.bw,opdscreen.cc,opdscreen.pulse,' +
+        'opdscreen.temperature,opdscreen.note,opdscreen.rr,opdscreen.height,opdscreen.bmi,opdscreen.found_amphetamine ' +
+        'FROM opdscreen ' + 
+        'WHERE opdscreen.vn = ? ',
+        [vn],(err, result, field) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+            res.status(200).json(result)
+        })
+    } catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
