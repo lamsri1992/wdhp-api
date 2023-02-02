@@ -44,7 +44,7 @@ app.get('/methadone/:hn', async (req, res) => {
     const hn = req.params.hn
 
     try {
-        connection.query('SELECT vn,hn,vstdate,diag_text FROM ovst WHERE hn = ? AND diag_text LIKE "%(F11.2)%" ORDER BY vstdate DESC',
+        connection.query('SELECT vn,hn,vstdate,diag_text FROM ovst WHERE hn = ? AND diag_text LIKE "%(F11.2)%" OR diag_text LIKE "%Opiod dependence syndrome%" ORDER BY vstdate DESC',
         [hn],(err, result, field) => {
             if (err) {
                 console.log(err);
