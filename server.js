@@ -78,3 +78,45 @@ app.get('/vst/:vn', async (req, res) => {
         return res.status(500).send();
     }
 })
+
+app.get('/lab/:vn', async (req, res) => {
+    const vn = req.params.vn
+
+    try {
+        connection.query('SELECT lab_head.lab_order_number,lab_order.lab_items_name_ref,lab_order.lab_order_result ' +
+        'FROM lab_head ' + 
+        'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' + 
+        'WHERE lab_head.vn = ? ',
+        [vn],(err, result, field) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+            res.status(200).json(result)
+        })
+    } catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+app.get('/drug/:vn', async (req, res) => {
+    const vn = req.params.vn
+
+    try {
+        connection.query('SELECT opitemrece.vn,drugitems.icode,drugitems.`name`,opitemrece.qty ' +
+        'FROM opitemrece ' + 
+        'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' + 
+        'WHERE opitemrece.vn = ? AND drugitems.icode IS NOT NULL',
+        [vn],(err, result, field) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+            res.status(200).json(result)
+        })
+    } catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
