@@ -18,8 +18,8 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.listen(3000, function () {
-    console.log('CORS-enabled web server listening on port 3000')
+app.listen(8550, function () {
+    console.log('CORS-enabled web server listening on port 8550')
 })
 
 app.get('/hn/:hn', async (req, res) => {
