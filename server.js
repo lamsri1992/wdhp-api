@@ -40,6 +40,7 @@ app.get('/hn/:hn', async (req, res) => {
     }
 })
 
+// Methadone API
 app.get('/methadone/:hn', async (req, res) => {
     const hn = req.params.hn
 
@@ -109,6 +110,25 @@ app.get('/drug/:vn', async (req, res) => {
         'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' + 
         'WHERE opitemrece.vn = ? AND drugitems.icode IS NOT NULL',
         [vn],(err, result, field) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).send();
+            }
+            res.status(200).json(result)
+        })
+    } catch(err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// Matrix API
+app.get('/matrix/:hn', async (req, res) => {
+    const hn = req.params.hn
+
+    try {
+        connection.query('SELECT vn,hn,vstdate,diag_text FROM ovst WHERE hn = ? AND diag_text LIKE "%(F19.5)%" ORDER BY vstdate DESC',
+        [hn],(err, result, field) => {
             if (err) {
                 console.log(err);
                 return res.status(400).send();
