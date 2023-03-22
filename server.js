@@ -137,7 +137,7 @@ app.get('/matrix/:hn', async (req, res) => {
         'FROM ovst ' +
         'LEFT JOIN patient ON patient.hn = ovst.hn ' +
         'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
-        'WHERE icd10 IN("Z503") ' +
+        'WHERE icd10 IN("F195","Z503") ' +
         'AND ovst.hn = ? ' +
         'ORDER BY ovstdiag.vstdate DESC',
         [hn],(err, result, field) => {
