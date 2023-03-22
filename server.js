@@ -45,7 +45,13 @@ app.get('/methadone/:hn', async (req, res) => {
     const hn = req.params.hn
 
     try {
-        connection.query('SELECT vn,hn,vstdate,diag_text FROM ovst WHERE hn = ? AND diag_text LIKE "%(F11.2)%" ORDER BY vstdate DESC',
+        connection.query('SELECT ovst.vn,ovst.hn,ovst.vstdate,ovstdiag.icd10 ' +
+        'FROM ovst ' +
+        'LEFT JOIN patient ON patient.hn = ovst.hn ' +
+        'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
+        'WHERE icd10 IN("F112","F1120","F1125") ' +
+        'AND ovst.hn = ? ' +
+        'ORDER BY ovstdiag.vstdate DESC',
         [hn],(err, result, field) => {
             if (err) {
                 console.log(err);
