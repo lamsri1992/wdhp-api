@@ -185,12 +185,13 @@ app.get('/patient', async (req, res) => {
             'FROM person ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
             'LEFT JOIN opd_allergy ON opd_allergy.hn = patient.hn ' +
-            'WHERE person.death = "N" AND patient.firstday = CURDATE()',
+            'WHERE person.death = "N" AND patient.firstday >= CURDATE() - INTERVAL 1 DAY',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
                     return res.status(400).send()
                 }
+                // res.status(200).json(result)
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
@@ -238,13 +239,13 @@ app.get('/visit', async (req, res) => {
             'FROM opdscreen ' +
             'LEFT JOIN patient on patient.hn = opdscreen.hn ' +
             'LEFT JOIN person on person.cid = patient.cid ' + 
-            'WHERE opdscreen.vstdate = CURDATE()',
+            'WHERE opdscreen.vstdate >= CURDATE() - INTERVAL 1 DAY',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
                     return res.status(400).send()
                 }
-            // res.status(200).json(result)
+                // res.status(200).json(result)
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
@@ -292,12 +293,13 @@ app.get('/diag', async (req, res) => {
             'LEFT JOIN patient ON patient.hn = ovst.hn ' +
             'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
             'LEFT JOIN icd101 ON icd101.`code` = ovstdiag.icd10 ' +
-            'WHERE ovst.vstdate = CURDATE()',
+            'WHERE ovst.vstdate >= CURDATE() - INTERVAL 1 DAY',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
                     return res.status(400).send()
                 }
+                // res.status(200).json(result)
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
@@ -337,12 +339,13 @@ app.get('/drug', async (req, res) => {
         connection.query('SELECT opitemrece.vstdate,opitemrece.vn,drugitems.`name` AS drugname,opitemrece.qty,drugitems.therapeutic ' +
             'FROM opitemrece ' +
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
-            'WHERE opitemrece.vstdate = CURDATE()',
+            'WHERE opitemrece.vstdate >= CURDATE() - INTERVAL 1 DAY',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
                     return res.status(400).send()
                 }
+                // res.status(200).json(result)
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
