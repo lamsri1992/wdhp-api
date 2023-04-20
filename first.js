@@ -50,7 +50,7 @@ app.get('/patient', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup,allergic) VALUES (23736,?,?,?,?,?,?,?,?,?,?)",
+                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup,allergic) VALUES ("+h_code+",?,?,?,?,?,?,?,?,?,?)",
                     [
                         jsdata.pid,
                         jsdata.hn,
@@ -68,7 +68,7 @@ app.get('/patient', async (req, res) => {
                     })
                 );
                 var ProgressBar = require('progress');
-                var count = 80 / keyCount;
+                var count = 20 / keyCount;
                 var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
                 var timer = setInterval(function () {
                 bar.tick();
@@ -94,7 +94,7 @@ app.get('/visit', async (req, res) => {
             'FROM opdscreen ' +
             'LEFT JOIN patient on patient.hn = opdscreen.hn ' +
             'LEFT JOIN person on person.cid = patient.cid ' + 
-            'WHERE opdscreen.vstdate >= "2020-01-01" AND opdscreen.vstdate <= "2023-12-31"',
+            'WHERE opdscreen.vstdate >= "2022-07-01" AND opdscreen.vstdate <= "2022-12-31"',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -104,7 +104,7 @@ app.get('/visit', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_visit (visitdate,pcucode,visitno,pid,symptoms,weight,height,pressure,temperature,pulse,respri) VALUES (?,23736,?,?,?,?,?,?,?,?,?)",
+                    api_connection.query("INSERT INTO h_visit (visitdate,pcucode,visitno,pid,symptoms,weight,height,pressure,temperature,pulse,respri) VALUES (?,"+h_code+",?,?,?,?,?,?,?,?,?)",
                     [
                         jsdata.vstdate,
                         jsdata.vn,
@@ -122,7 +122,7 @@ app.get('/visit', async (req, res) => {
                     })
                 );
                 var ProgressBar = require('progress');
-                var count = 80 / keyCount;
+                var count = 20 / keyCount;
                 var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
                 var timer = setInterval(function () {
                 bar.tick();
@@ -148,7 +148,7 @@ app.get('/diag', async (req, res) => {
             'LEFT JOIN patient ON patient.hn = ovst.hn ' +
             'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
             'LEFT JOIN icd101 ON icd101.`code` = ovstdiag.icd10 ' +
-            'WHERE ovst.vstdate >= "2020-01-01" AND ovst.vstdate <= "2023-12-31"',
+            'WHERE ovst.vstdate >= "2022-07-01" AND ovst.vstdate <= "2022-12-31"',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -157,7 +157,7 @@ app.get('/diag', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_visit_diag (visitdate,pcucode,visitno,diagcode,diseasenamethai) VALUES (?,23736,?,?,?)",
+                    api_connection.query("INSERT INTO h_visit_diag (visitdate,pcucode,visitno,diagcode,diseasenamethai) VALUES (?,"+h_code+",?,?,?)",
                     [
                         jsdata.vstdate,
                         jsdata.vn,
@@ -169,7 +169,7 @@ app.get('/diag', async (req, res) => {
                     })
                 );
                 var ProgressBar = require('progress');
-                var count = 80 / keyCount;
+                var count = 20 / keyCount;
                 var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
                 var timer = setInterval(function () {
                 bar.tick();
@@ -193,7 +193,7 @@ app.get('/drug', async (req, res) => {
         connection.query('SELECT opitemrece.vstdate,opitemrece.vn,drugitems.`name` AS drugname,opitemrece.qty,drugitems.therapeutic ' +
             'FROM opitemrece ' +
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
-            'WHERE opitemrece.vstdate >= "2020-01-01" AND opitemrece.vstdate <= "2023-12-31"',
+            'WHERE opitemrece.vstdate >= "2021-12-01" AND opitemrece.vstdate <= "2021-12-31"',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -202,7 +202,7 @@ app.get('/drug', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_visit_drug (visitdate,pcucode,visitno,drugname,unit,dose) VALUES (?,23736,?,?,?,?)",
+                    api_connection.query("INSERT INTO h_visit_drug (visitdate,pcucode,visitno,drugname,unit,dose) VALUES (?,"+h_code+",?,?,?,?)",
                     [
                         jsdata.vstdate,
                         jsdata.vn,
@@ -215,7 +215,7 @@ app.get('/drug', async (req, res) => {
                     })
                 );
                 var ProgressBar = require('progress');
-                var count = 80 / keyCount;
+                var count = 20 / keyCount;
                 var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
                 var timer = setInterval(function () {
                 bar.tick();
