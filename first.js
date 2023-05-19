@@ -94,7 +94,7 @@ app.get('/visit', async (req, res) => {
             'FROM opdscreen ' +
             'LEFT JOIN patient on patient.hn = opdscreen.hn ' +
             'LEFT JOIN person on person.cid = patient.cid ' + 
-            'WHERE opdscreen.vstdate >= "2022-07-01" AND opdscreen.vstdate <= "2022-12-31"',
+            'WHERE opdscreen.vstdate >= "2023-01-01" AND opdscreen.vstdate <= "2023-01-31" ORDER BY opdscreen.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -139,6 +139,95 @@ app.get('/visit', async (req, res) => {
     }
 })
 
+// Send HPI From HOSxP XE4
+app.get('/hpi', async (req, res) => {
+            
+    try {
+        connection.query('SELECT entry_date,entry_time,vn,hpi_text ' +
+            'FROM patient_history_hpi ' +
+            'WHERE entry_date >= "2023-01-01" AND entry_date <= "2023-05-15" ORDER BY entry_date ASC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_hpi (h_entry_date,h_entry_time,h_vn,h_hpi_text,pcucode) VALUES (?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.entry_date,
+                        jsdata.entry_time,
+                        jsdata.vn,
+                        jsdata.hpi_text
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("HPI Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send HPI From HOSxP XE4
+app.get('/pe', async (req, res) => {
+            
+    try {
+        connection.query('SELECT vn,pe,update_datetime ' +
+            'FROM opdscreen_doctor_pe ' +
+            'WHERE update_datetime >= "2020-01-01" AND update_datetime <= "2023-05-15" ORDER BY update_datetime ASC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_pe (pe_vn,pe_text,pe_date) VALUES (?,?,?)",
+                    [
+                        jsdata.vn,
+                        jsdata.pe,
+                        jsdata.update_datetime
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("PE Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
 // Send Diag From HOSxP XE4
 app.get('/diag', async (req, res) => {
             
@@ -148,7 +237,7 @@ app.get('/diag', async (req, res) => {
             'LEFT JOIN patient ON patient.hn = ovst.hn ' +
             'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
             'LEFT JOIN icd101 ON icd101.`code` = ovstdiag.icd10 ' +
-            'WHERE ovst.vstdate >= "2022-07-01" AND ovst.vstdate <= "2022-12-31"',
+            'WHERE ovst.vstdate >= "2023-01-01" AND ovst.vstdate <= "2023-01-31" ORDER BY ovst.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -190,10 +279,12 @@ app.get('/diag', async (req, res) => {
 app.get('/drug', async (req, res) => {
             
     try {
-        connection.query('SELECT opitemrece.vstdate,opitemrece.vn,drugitems.`name` AS drugname,opitemrece.qty,drugitems.therapeutic ' +
+        connection.query('SELECT opitemrece.vstdate,opitemrece.vn,drugitems.`name` AS drugname,opitemrece.qty,drugusage.shortlist ' +
             'FROM opitemrece ' +
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
-            'WHERE opitemrece.vstdate >= "2021-12-01" AND opitemrece.vstdate <= "2021-12-31"',
+            'LEFT JOIN drugusage ON drugusage.drugusage = drugitems.drugusage ' +
+            'WHERE opitemrece.an IS NULL AND drugitems.drugusage IS NOT NULL ' +
+            'AND opitemrece.vstdate >= "2023-01-01" AND opitemrece.vstdate <= "2023-01-31" ORDER BY opitemrece.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -208,7 +299,7 @@ app.get('/drug', async (req, res) => {
                         jsdata.vn,
                         jsdata.drugname,
                         jsdata.qty,
-                        jsdata.therapeutic
+                        jsdata.shortlist
                     ],
                      (err, results) => {
                         if (err) throw err
@@ -221,6 +312,54 @@ app.get('/drug', async (req, res) => {
                 bar.tick();
                 if (bar.complete) {
                     console.log("Drug Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send LAB From HOSxP XE4
+app.get('/lab', async (req, res) => {
+            
+    try {
+        connection.query('SELECT lab_head.vn,lab_head.lab_order_number,lab_order.lab_items_name_ref,lab_order.lab_order_result,lab_head.order_date,lab_head.report_date ' +
+            'FROM lab_head ' +
+            'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
+            'WHERE lab_head.vn IS NOT NULL ' +
+            'AND lab_head.order_date >= "2023-01-01" AND lab_head.order_date <= "2023-01-31" ORDER BY lab_head.order_date ASC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_lab (v_lab_vn,v_lab_no,v_lab_name,v_lab_result,lab_order_date,lab_report_date,pcucode) VALUES (?,?,?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.vn,
+                        jsdata.lab_order_number,
+                        jsdata.lab_items_name_ref,
+                        jsdata.lab_order_result,
+                        jsdata.order_date,
+                        jsdata.report_date
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("LAB Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
                     clearInterval(timer);
                 }
             }, count);
