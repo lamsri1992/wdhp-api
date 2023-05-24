@@ -184,7 +184,7 @@ app.get('/hpi', async (req, res) => {
     }
 })
 
-// Send HPI From HOSxP XE4
+// Send PE From HOSxP XE4
 app.get('/pe', async (req, res) => {
             
     try {
@@ -360,6 +360,54 @@ app.get('/lab', async (req, res) => {
                 bar.tick();
                 if (bar.complete) {
                     console.log("LAB Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send Clinic From HOSxP XE4
+app.get('/clinic', async (req, res) => {
+            
+    try {
+        connection.query('SELECT clinicmember.hn,clinicmember.clinic,clinic.`name` AS clinic_name,regdate,dx_hospcode ' +
+            'FROM clinicmember ' +
+            'LEFT JOIN clinic ON clinic.clinic = clinicmember.clinic ' +
+            'WHERE clinicmember.clinic IN ("021","022") ' +
+            'AND hn != "777777777" ORDER BY regdate ASC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_clinic_list (list_hn,clinic_id,clinic_name,regdate,pcucode) VALUES (?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.hn,
+                        jsdata.clinic,
+                        jsdata.clinic_name,
+                        jsdata.regdate,
+                        jsdata.dx_hospcode
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("NCD Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
                     clearInterval(timer);
                 }
             }, count);

@@ -41,7 +41,7 @@ app.listen(8550, function () {
 })
 
 // Patient
-cron.schedule('00 20 * * *', function () { 
+cron.schedule('00 00 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -75,7 +75,7 @@ cron.schedule('00 20 * * *', function () {
 });
 
 // Visit
-cron.schedule('05 20 * * *', function () { 
+cron.schedule('00 00 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -108,8 +108,76 @@ cron.schedule('05 20 * * *', function () {
     })
 });
 
+// HPI
+cron.schedule('00 00 * * *', function () { 
+    let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
+    console.log("------------------------------------------");
+    console.log(`Running Cron Job ${d}`);;
+    
+    // Run Script
+    var options = {
+        host: process.env.DB_HOST_API,
+        port: process.env.H_PORT,
+        path: '/hpi',
+        method: 'GET'
+    };
+    
+    http.request(options, function(res) {
+        console.log('\nRunning API Script :: ' + options.path)
+    }).end();
+    // End 
+
+    isReachable(process.env.DB_HOST_API +":"+ process.env.H_PORT).then(reachable => {
+        if (!reachable) { // => false
+            let msg = `ไม่สามารถเชื่อมต่อ API ได้ !!\n` + d + ` :: ` + h_code + ` => ` + h_name
+            notify.send({
+                message: msg
+            })
+        }else{
+            let msg = `เชื่อมโยงข้อมูลการรับบริการสำเร็จ [HPI] !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
+            notify.send({
+                message: msg
+            })
+        }
+    })
+});
+
+// PE
+cron.schedule('00 00 * * *', function () { 
+    let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
+    console.log("------------------------------------------");
+    console.log(`Running Cron Job ${d}`);;
+    
+    // Run Script
+    var options = {
+        host: process.env.DB_HOST_API,
+        port: process.env.H_PORT,
+        path: '/pe',
+        method: 'GET'
+    };
+    
+    http.request(options, function(res) {
+        console.log('\nRunning API Script :: ' + options.path)
+    }).end();
+    // End 
+
+    isReachable(process.env.DB_HOST_API +":"+ process.env.H_PORT).then(reachable => {
+        if (!reachable) { // => false
+            let msg = `ไม่สามารถเชื่อมต่อ API ได้ !!\n` + d + ` :: ` + h_code + ` => ` + h_name
+            notify.send({
+                message: msg
+            })
+        }else{
+            let msg = `เชื่อมโยงข้อมูลการรับบริการสำเร็จ [PE] !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
+            notify.send({
+                message: msg
+            })
+        }
+    })
+});
+
 // Diag
-cron.schedule('10 20 * * *', function () { 
+cron.schedule('00 00 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -143,7 +211,7 @@ cron.schedule('10 20 * * *', function () {
 });
 
 // Drug
-cron.schedule('15 20 * * *', function () { 
+cron.schedule('00 00 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -153,6 +221,40 @@ cron.schedule('15 20 * * *', function () {
         host: process.env.DB_HOST_API,
         port: process.env.H_PORT,
         path: '/drug',
+        method: 'GET'
+    };
+    
+    http.request(options, function(res) {
+        console.log('\nRunning API Script :: ' + options.path)
+    }).end();
+    // End 
+
+    isReachable(process.env.DB_HOST_API +":"+ process.env.H_PORT).then(reachable => {
+        if (!reachable) { // => false
+            let msg = `ไม่สามารถเชื่อมต่อ API ได้ !!\n` + d + ` :: ` + h_code + ` => ` + h_name
+            notify.send({
+                message: msg
+            })
+        }else{
+            let msg = `เชื่อมโยงข้อมูลรายการยาสำเร็จ !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
+            notify.send({
+                message: msg
+            })
+        }
+    })
+});
+
+// Clinic
+cron.schedule('00 00 * * *', function () { 
+    let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
+    console.log("------------------------------------------");
+    console.log(`Running Cron Job ${d}`);;
+    
+    // Run Script
+    var options = {
+        host: process.env.DB_HOST_API,
+        port: process.env.H_PORT,
+        path: '/clinic',
         method: 'GET'
     };
     
@@ -284,6 +386,95 @@ app.get('/visit', async (req, res) => {
     }
 })
 
+// Send HPI From HOSxP XE4
+app.get('/hpi', async (req, res) => {
+            
+    try {
+        connection.query('SELECT entry_date,entry_time,vn,hpi_text ' +
+            'FROM patient_history_hpi ' +
+            'WHERE entry_date >= CURDATE() - INTERVAL 1 DAY',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_hpi (h_entry_date,h_entry_time,h_vn,h_hpi_text,pcucode) VALUES (?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.entry_date,
+                        jsdata.entry_time,
+                        jsdata.vn,
+                        jsdata.hpi_text
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("HPI Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send PE From HOSxP XE4
+app.get('/pe', async (req, res) => {
+            
+    try {
+        connection.query('SELECT vn,pe,update_datetime ' +
+            'FROM opdscreen_doctor_pe ' +
+            'WHERE update_datetime >= CURDATE() - INTERVAL 1 DAY',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_pe (pe_vn,pe_text,pe_date) VALUES (?,?,?)",
+                    [
+                        jsdata.vn,
+                        jsdata.pe,
+                        jsdata.update_datetime
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("PE Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
 // Send Diag From HOSxP XE4
 app.get('/diag', async (req, res) => {
             
@@ -368,6 +559,54 @@ app.get('/drug', async (req, res) => {
                 bar.tick();
                 if (bar.complete) {
                     console.log("Drug Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send Clinic From HOSxP XE4
+app.get('/clinic', async (req, res) => {
+            
+    try {
+        connection.query('SELECT clinicmember.hn,clinicmember.clinic,clinic.`name` AS clinic_name,regdate,dx_hospcode ' +
+            'FROM clinicmember ' +
+            'LEFT JOIN clinic ON clinic.clinic = clinicmember.clinic ' +
+            'WHERE clinicmember.clinic IN ("021","022") AND regdate >= CURDATE() - INTERVAL 1 DAY' +
+            'AND hn != "777777777" ORDER BY regdate ASC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+            // res.status(200).json(result)
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_clinic_list (list_hn,clinic_id,clinic_name,regdate,pcucode) VALUES (?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.hn,
+                        jsdata.clinic,
+                        jsdata.clinic_name,
+                        jsdata.regdate,
+                        jsdata.dx_hospcode
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("NCD Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
                     clearInterval(timer);
                 }
             }, count);
