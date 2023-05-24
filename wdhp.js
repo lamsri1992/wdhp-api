@@ -577,7 +577,7 @@ app.get('/clinic', async (req, res) => {
         connection.query('SELECT clinicmember.hn,clinicmember.clinic,clinic.`name` AS clinic_name,regdate,dx_hospcode ' +
             'FROM clinicmember ' +
             'LEFT JOIN clinic ON clinic.clinic = clinicmember.clinic ' +
-            'WHERE clinicmember.clinic IN ("021","022") AND regdate >= CURDATE() - INTERVAL 1 DAY' +
+            'WHERE regdate >= CURDATE() - INTERVAL 1 DAY' +
             'AND hn != "777777777" ORDER BY regdate ASC',
             (err, result, field) => {
                 if (err) {
