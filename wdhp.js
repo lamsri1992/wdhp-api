@@ -283,7 +283,7 @@ app.get('/patient', async (req, res) => {
             
     try {
         connection.query('SELECT person.person_id AS pid,patient.hn,patient.pname,patient.fname,patient.lname,person.birthdate,person.sex,person.cid,'+
-            'person.blood_group,CONCAT(opd_allergy.agent," ",opd_allergy.symptom) AS allergic ' +
+            'person.blood_group ' +
             'FROM person ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
             'WHERE person.death = "N" AND patient.firstday >= CURDATE() - INTERVAL 1 DAY',

@@ -40,7 +40,8 @@ app.get('/patient', async (req, res) => {
             'person.blood_group ' +
             'FROM person ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
-            'WHERE person.death = "N"',
+            'WHERE person.death = "N" ' +
+            'AND patient.firstday >= "1990-01-01" AND patient.firstday <= "2023-05-31" ORDER BY patient.firstday ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -92,7 +93,7 @@ app.get('/visit', async (req, res) => {
             'FROM opdscreen ' +
             'LEFT JOIN patient on patient.hn = opdscreen.hn ' +
             'LEFT JOIN person on person.cid = patient.cid ' + 
-            'WHERE opdscreen.vstdate >= "2023-03-01" AND opdscreen.vstdate <= "2023-04-31" ORDER BY opdscreen.vstdate ASC',
+            'WHERE opdscreen.vstdate >= "2023-01-01" AND opdscreen.vstdate <= "2023-05-31" ORDER BY opdscreen.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -235,7 +236,7 @@ app.get('/diag', async (req, res) => {
             'LEFT JOIN patient ON patient.hn = ovst.hn ' +
             'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
             'LEFT JOIN icd101 ON icd101.`code` = ovstdiag.icd10 ' +
-            'WHERE ovst.vstdate >= "2023-02-01" AND ovst.vstdate <= "2023-05-31" ORDER BY ovst.vstdate ASC',
+            'WHERE ovst.vstdate >= "2023-01-01" AND ovst.vstdate <= "2023-05-31" ORDER BY ovst.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -282,7 +283,7 @@ app.get('/drug', async (req, res) => {
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
             'LEFT JOIN drugusage ON drugusage.drugusage = drugitems.drugusage ' +
             'WHERE opitemrece.an IS NULL AND drugitems.drugusage IS NOT NULL ' +
-            'AND opitemrece.vstdate >= "2023-02-01" AND opitemrece.vstdate <= "2023-05-31" ORDER BY opitemrece.vstdate ASC',
+            'AND opitemrece.vstdate >= "2023-01-01" AND opitemrece.vstdate <= "2023-05-31" ORDER BY opitemrece.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
