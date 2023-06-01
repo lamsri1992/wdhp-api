@@ -41,7 +41,7 @@ app.listen(8550, function () {
 })
 
 // Patient
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('00 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -75,7 +75,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // Visit
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('05 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -109,7 +109,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // HPI
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('10 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -143,7 +143,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // PE
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('15 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -177,7 +177,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // Diag
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('20 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -211,7 +211,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // Drug
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('25 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -245,7 +245,7 @@ cron.schedule('00 00 * * *', function () {
 });
 
 // Clinic
-cron.schedule('00 00 * * *', function () { 
+cron.schedule('30 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -286,7 +286,6 @@ app.get('/patient', async (req, res) => {
             'person.blood_group,CONCAT(opd_allergy.agent," ",opd_allergy.symptom) AS allergic ' +
             'FROM person ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
-            'LEFT JOIN opd_allergy ON opd_allergy.hn = patient.hn ' +
             'WHERE person.death = "N" AND patient.firstday >= CURDATE() - INTERVAL 1 DAY',
             (err, result, field) => {
                 if (err) {
@@ -297,7 +296,7 @@ app.get('/patient', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup,allergic) VALUES (23736,?,?,?,?,?,?,?,?,?,?)",
+                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup) VALUES (23736,?,?,?,?,?,?,?,?,?)",
                     [
                         jsdata.pid,
                         jsdata.hn,
@@ -307,8 +306,7 @@ app.get('/patient', async (req, res) => {
                         jsdata.birthdate,
                         jsdata.sex,
                         jsdata.cid,
-                        jsdata.blood_group,
-                        jsdata.allergic
+                        jsdata.blood_group
                     ],
                      (err, results) => {
                         if (err) throw err

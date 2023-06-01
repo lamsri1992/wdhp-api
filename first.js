@@ -37,10 +37,9 @@ app.get('/patient', async (req, res) => {
             
     try {
         connection.query('SELECT person.person_id AS pid,patient.hn,patient.pname,patient.fname,patient.lname,person.birthdate,person.sex,person.cid,'+
-            'person.blood_group,CONCAT(opd_allergy.agent," ",opd_allergy.symptom) AS allergic ' +
+            'person.blood_group ' +
             'FROM person ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
-            'LEFT JOIN opd_allergy ON opd_allergy.hn = patient.hn ' +
             'WHERE person.death = "N"',
             (err, result, field) => {
                 if (err) {
@@ -50,7 +49,7 @@ app.get('/patient', async (req, res) => {
                 var jsArray = result;
                 var keyCount  = Object.keys(result).length;
                 jsArray.forEach(jsdata =>
-                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup,allergic) VALUES ("+h_code+",?,?,?,?,?,?,?,?,?,?)",
+                    api_connection.query("INSERT INTO h_patient (pcucodeperson,pid,hcode,prename,fname,lname,birth,sex,idcard,bloodgroup) VALUES ("+h_code+",?,?,?,?,?,?,?,?,?)",
                     [
                         jsdata.pid,
                         jsdata.hn,
@@ -60,8 +59,7 @@ app.get('/patient', async (req, res) => {
                         jsdata.birthdate,
                         jsdata.sex,
                         jsdata.cid,
-                        jsdata.blood_group,
-                        jsdata.allergic
+                        jsdata.blood_group
                     ],
                      (err, results) => {
                         if (err) throw err
@@ -94,7 +92,7 @@ app.get('/visit', async (req, res) => {
             'FROM opdscreen ' +
             'LEFT JOIN patient on patient.hn = opdscreen.hn ' +
             'LEFT JOIN person on person.cid = patient.cid ' + 
-            'WHERE opdscreen.vstdate >= "2023-01-01" AND opdscreen.vstdate <= "2023-01-31" ORDER BY opdscreen.vstdate ASC',
+            'WHERE opdscreen.vstdate >= "2023-03-01" AND opdscreen.vstdate <= "2023-04-31" ORDER BY opdscreen.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -145,7 +143,7 @@ app.get('/hpi', async (req, res) => {
     try {
         connection.query('SELECT entry_date,entry_time,vn,hpi_text ' +
             'FROM patient_history_hpi ' +
-            'WHERE entry_date >= "2023-01-01" AND entry_date <= "2023-05-15" ORDER BY entry_date ASC',
+            'WHERE entry_date >= "2023-01-01" AND entry_date <= "2023-05-31" ORDER BY entry_date ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -190,7 +188,7 @@ app.get('/pe', async (req, res) => {
     try {
         connection.query('SELECT vn,pe,update_datetime ' +
             'FROM opdscreen_doctor_pe ' +
-            'WHERE update_datetime >= "2020-01-01" AND update_datetime <= "2023-05-15" ORDER BY update_datetime ASC',
+            'WHERE update_datetime >= "2020-01-01" AND update_datetime <= "2023-05-31" ORDER BY update_datetime ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -237,7 +235,7 @@ app.get('/diag', async (req, res) => {
             'LEFT JOIN patient ON patient.hn = ovst.hn ' +
             'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
             'LEFT JOIN icd101 ON icd101.`code` = ovstdiag.icd10 ' +
-            'WHERE ovst.vstdate >= "2023-01-01" AND ovst.vstdate <= "2023-01-31" ORDER BY ovst.vstdate ASC',
+            'WHERE ovst.vstdate >= "2023-02-01" AND ovst.vstdate <= "2023-05-31" ORDER BY ovst.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -284,7 +282,7 @@ app.get('/drug', async (req, res) => {
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
             'LEFT JOIN drugusage ON drugusage.drugusage = drugitems.drugusage ' +
             'WHERE opitemrece.an IS NULL AND drugitems.drugusage IS NOT NULL ' +
-            'AND opitemrece.vstdate >= "2023-01-01" AND opitemrece.vstdate <= "2023-01-31" ORDER BY opitemrece.vstdate ASC',
+            'AND opitemrece.vstdate >= "2023-02-01" AND opitemrece.vstdate <= "2023-05-31" ORDER BY opitemrece.vstdate ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
@@ -331,7 +329,7 @@ app.get('/lab', async (req, res) => {
             'FROM lab_head ' +
             'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
             'WHERE lab_head.vn IS NOT NULL ' +
-            'AND lab_head.order_date >= "2023-01-01" AND lab_head.order_date <= "2023-01-31" ORDER BY lab_head.order_date ASC',
+            'AND lab_head.order_date >= "2023-02-01" AND lab_head.order_date <= "2023-05-31" ORDER BY lab_head.order_date ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
