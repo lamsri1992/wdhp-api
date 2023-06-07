@@ -244,8 +244,42 @@ cron.schedule('25 12 * * *', function () {
     })
 });
 
-// Clinic
+// Lab
 cron.schedule('30 12 * * *', function () { 
+    let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
+    console.log("------------------------------------------");
+    console.log(`Running Cron Job ${d}`);;
+    
+    // Run Script
+    var options = {
+        host: process.env.DB_HOST_API,
+        port: process.env.H_PORT,
+        path: '/lab',
+        method: 'GET'
+    };
+    
+    http.request(options, function(res) {
+        console.log('\nRunning API Script :: ' + options.path)
+    }).end();
+    // End 
+
+    isReachable(process.env.DB_HOST_API +":"+ process.env.H_PORT).then(reachable => {
+        if (!reachable) { // => false
+            let msg = `ไม่สามารถเชื่อมต่อ API ได้ !!\n` + d + ` :: ` + h_code + ` => ` + h_name
+            notify.send({
+                message: msg
+            })
+        }else{
+            let msg = `เชื่อมโยงข้อมูลรายการ LAB สำเร็จ !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
+            notify.send({
+                message: msg
+            })
+        }
+    })
+});
+
+// Clinic
+cron.schedule('35 12 * * *', function () { 
     let d = new Date(Date.now()).toLocaleString(); //แสดงวันที่และเวลา
     console.log("------------------------------------------");
     console.log(`Running Cron Job ${d}`);;
@@ -270,7 +304,7 @@ cron.schedule('30 12 * * *', function () {
                 message: msg
             })
         }else{
-            let msg = `เชื่อมโยงข้อมูลรายการยาสำเร็จ !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
+            let msg = `เชื่อมโยงข้อมูลรายการคลินิคสำเร็จ !!\n` + d + ` :: ` + h_code + ` => ` + h_name;
             notify.send({
                 message: msg
             })
@@ -557,6 +591,54 @@ app.get('/drug', async (req, res) => {
                 bar.tick();
                 if (bar.complete) {
                     console.log("Drug Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
+                    clearInterval(timer);
+                }
+            }, count);
+            res.status(200).json("Total Data :: "+ keyCount + " Records")
+            })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).send()
+    }
+})
+
+// Send LAB From HOSxP XE4
+app.get('/lab', async (req, res) => {
+            
+    try {
+        connection.query('SELECT lab_head.vn,lab_head.lab_order_number,lab_order.lab_items_name_ref,lab_order.lab_order_result,lab_head.order_date,lab_head.report_date ' +
+            'FROM lab_head ' +
+            'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
+            'WHERE lab_head.vn IS NOT NULL ' +
+            'AND lab_head.order_date >= CURDATE() - INTERVAL 1 DAY',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(400).send()
+                }
+                var jsArray = result;
+                var keyCount  = Object.keys(result).length;
+                jsArray.forEach(jsdata =>
+                    api_connection.query("INSERT INTO h_visit_lab (v_lab_vn,v_lab_no,v_lab_name,v_lab_result,lab_order_date,lab_report_date,pcucode) VALUES (?,?,?,?,?,?,"+h_code+")",
+                    [
+                        jsdata.vn,
+                        jsdata.lab_order_number,
+                        jsdata.lab_items_name_ref,
+                        jsdata.lab_order_result,
+                        jsdata.order_date,
+                        jsdata.report_date
+                    ],
+                     (err, results) => {
+                        if (err) throw err
+                    })
+                );
+                var ProgressBar = require('progress');
+                var count = 20 / keyCount;
+                var bar = new ProgressBar('Processing [ :percent ]', { total: keyCount });
+                var timer = setInterval(function () {
+                bar.tick();
+                if (bar.complete) {
+                    console.log("LAB Data Transfer Complete :: "+ keyCount + " Records\n------------------------------------------\n");
                     clearInterval(timer);
                 }
             }, count);

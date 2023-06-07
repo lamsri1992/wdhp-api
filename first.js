@@ -330,7 +330,7 @@ app.get('/lab', async (req, res) => {
             'FROM lab_head ' +
             'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
             'WHERE lab_head.vn IS NOT NULL ' +
-            'AND lab_head.order_date >= "2023-02-01" AND lab_head.order_date <= "2023-05-31" ORDER BY lab_head.order_date ASC',
+            'AND lab_head.order_date >= "2023-06-01" AND lab_head.order_date <= "2023-06-06" ORDER BY lab_head.order_date ASC',
             (err, result, field) => {
                 if (err) {
                     console.log(err)
