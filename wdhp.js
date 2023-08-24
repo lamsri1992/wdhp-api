@@ -36,7 +36,7 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-app.listen(8550, function () {
+app.listen(8552, function () {
     console.log('<< WDHP - API :: WATCHAN DIGITAL HEALTH PLATFORM [HOSxP XE4] >>')
 })
 

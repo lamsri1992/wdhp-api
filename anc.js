@@ -17,8 +17,8 @@ const app = express()
 
 app.use(cors())
 app.use(express.json())
-app.listen(8550, function () {
-    // console.log('CORS-enabled web server listening on port 8550')
+app.listen(8551, function () {
+    // console.log('CORS-enabled web server listening on port 8551')
 })
 
 // ANC LIST
