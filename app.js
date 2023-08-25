@@ -181,3 +181,29 @@ app.get('/anc/:dstart/:dended', function (req, res) {
         return res.status(500).send();
     }
 })
+
+// ANC LIST
+app.get('/anc/list', function (req, res) {
+    try {
+        connection.query('SELECT person_anc.person_anc_id,person.cid,patient.hn,CONCAT(person.pname,person.fname," ",person.lname) as patient,person_anc.anc_register_date as reg_date, ' +
+            'person_anc.preg_no,person_anc.has_risk,person_anc.risk_list,person_anc.current_preg_age as preg_age, ' +
+            'labor_status.labor_status_name as labor_status,person_anc.labor_date,person_anc.service_count,person_anc.anc_register_staff as reg_staff ' +
+            'FROM person_anc ' +
+            'LEFT JOIN person ON person.person_id = person_anc.person_id ' +
+            'LEFT JOIN patient ON patient.cid = person.cid ' +
+            'LEFT JOIN labor_status ON labor_status.labor_status_id = person_anc.labor_status_id ' +
+            'ORDER BY person_anc.anc_register_date DESC',
+            (err, result, field) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).send({
+                    data: result
+                });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
