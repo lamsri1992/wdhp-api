@@ -207,3 +207,28 @@ app.get('/anc/list', function (req, res) {
         return res.status(500).send();
     }
 })
+
+// ANC LIST SHOW
+app.get('/anc/:pid', function (req, res) {
+    const pid = req.params.pid;
+    try {
+        connection.query('SELECT person_anc.person_anc_id,patient.hn,CONCAT(person.pname,person.fname," ",person.lname) as patient,' + 
+            'patient.birthday,person.nationality,person_anc.preg_no,person_anc.risk_list,person_anc.has_risk,anc_register_date ' +
+            'FROM person_anc ' +
+            'LEFT JOIN person ON person.person_id = person_anc.person_id ' +
+            'LEFT JOIN patient ON patient.cid = person.cid ' +
+            'WHERE person_anc.person_anc_id = ? ',
+            [pid],(err, result, field) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).send({
+                    data: result
+                });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
