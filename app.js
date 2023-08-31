@@ -208,15 +208,39 @@ app.get('/anc/list', function (req, res) {
     }
 })
 
+
+// ANC LIST SERVICE
+app.get('/service/:pid', function (req, res) {
+    const pid = req.params.pid;
+    try {
+        connection.query('SELECT anc_service_date,pa_week,anc_service_number,service_note_text ' +
+            'FROM person_anc_service ' +
+            'WHERE person_anc_id = ? ',
+            [pid],(err, result, field) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).send({
+                    data: result
+                });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
 // ANC LIST SHOW
 app.get('/anc/:pid', function (req, res) {
     const pid = req.params.pid;
     try {
         connection.query('SELECT person_anc.person_anc_id,patient.hn,CONCAT(person.pname,person.fname," ",person.lname) as patient,' + 
-            'patient.birthday,person.nationality,person_anc.preg_no,person_anc.risk_list,person_anc.has_risk,anc_register_date ' +
+            'patient.birthday,person.nationality,person_anc.preg_no,person_anc.risk_list,person_anc.has_risk,anc_register_date,person_anc.current_preg_age as preg_age,patient_image.image ' +
             'FROM person_anc ' +
             'LEFT JOIN person ON person.person_id = person_anc.person_id ' +
             'LEFT JOIN patient ON patient.cid = person.cid ' +
+            'LEFT JOIN patient_image ON patient_image.hn = patient.hn ' +
             'WHERE person_anc.person_anc_id = ? ',
             [pid],(err, result, field) => {
                 if (err) {
