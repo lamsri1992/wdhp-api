@@ -256,3 +256,35 @@ app.get('/anc/:pid', function (req, res) {
         return res.status(500).send();
     }
 })
+
+
+// ANC
+app.get('/ancLabs/:pid', function (req, res) {
+    const pid = req.params.pid;
+    try {
+        connection.query('SELECT ovst.vn,ovst.hn,ovstdiag.icd10,lab_order.lab_items_name_ref,lab_order.lab_order_result,ovst.vstdate,person_anc.person_anc_id ' +
+            'FROM ovst ' +
+            'LEFT JOIN patient ON patient.hn = ovst.hn ' +
+            'LEFT JOIN person ON person.patient_hn = patient.hn ' +
+            'LEFT JOIN person_anc ON person_anc.person_id = person.person_id ' +
+            'LEFT JOIN ovstdiag ON ovstdiag.vn = ovst.vn ' +
+            'LEFT JOIN lab_head ON lab_head.vn = ovst.vn ' +
+            'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
+            'WHERE icd10 IN("Z33","Z340","Z348") ' +
+            'AND lab_items_name_ref IN("Hb","HCT(30104)","HCT") ' +
+            'AND person_anc.person_anc_id = ? ' + 
+            'ORDER BY ovstdiag.vstdate DESC',
+            [pid], (err, result, field) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).send({
+                    data: result
+                });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
