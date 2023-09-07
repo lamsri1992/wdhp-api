@@ -110,7 +110,7 @@ app.get('/drug/:vn', async (req, res) => {
     const vn = req.params.vn
 
     try {
-        connection.query('SELECT opitemrece.vn,drugitems.icode,drugitems.`name`,opitemrece.qty ' +
+        connection.query('SELECT opitemrece.vn,drugitems.icode,drugitems.`name`,opitemrece.qty,drugitems.therapeutic ' +
             'FROM opitemrece ' +
             'LEFT JOIN drugitems ON drugitems.icode = opitemrece.icode ' +
             'WHERE opitemrece.vn = ? AND drugitems.icode IS NOT NULL',
