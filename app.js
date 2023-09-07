@@ -235,7 +235,7 @@ app.get('/service/:pid', function (req, res) {
 app.get('/anc/:pid', function (req, res) {
     const pid = req.params.pid;
     try {
-        connection.query('SELECT person_anc.person_anc_id,patient.hn,CONCAT(person.pname,person.fname," ",person.lname) as patient,' + 
+        connection.query('SELECT person_anc.person_anc_id,patient.hn,CONCAT(person.pname,person.fname," ",person.lname) as patient,CONCAT(patient.spsname," ",patient.spslname) AS husband,' + 
             'patient.birthday,person.nationality,person_anc.preg_no,person_anc.risk_list,person_anc.has_risk,anc_register_date,person_anc.current_preg_age as preg_age,patient_image.image ' +
             'FROM person_anc ' +
             'LEFT JOIN person ON person.person_id = person_anc.person_id ' +
