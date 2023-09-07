@@ -258,7 +258,7 @@ app.get('/anc/:pid', function (req, res) {
 })
 
 
-// ANC
+// ANC LAB 1
 app.get('/ancLabs/:pid', function (req, res) {
     const pid = req.params.pid;
     try {
@@ -274,6 +274,34 @@ app.get('/ancLabs/:pid', function (req, res) {
             'AND lab_items_name_ref IN("Hb","HCT(30104)","HCT") ' +
             'AND person_anc.person_anc_id = ? ' + 
             'ORDER BY ovstdiag.vstdate DESC',
+            [pid], (err, result, field) => {
+                if (err) {
+                    console.log(err);
+                    return res.status(400).send();
+                }
+                res.status(200).send({
+                    data: result
+                });
+            })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+})
+
+// ANC LAB 2
+app.get('/ancLabs2/:pid', function (req, res) {
+    const pid = req.params.pid;
+    try {
+        connection.query('SELECT lab_head.vn,lab_head.hn,lab_order.lab_items_name_ref,lab_order.lab_order_result,lab_head.order_date,lab_head.report_date ' +
+            'FROM lab_head ' +
+            'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
+            'LEFT JOIN patient ON patient.hn = lab_head.hn ' +
+            'LEFT JOIN person ON person.patient_hn = patient.hn ' +
+            'LEFT JOIN person_anc ON person_anc.person_id = person.person_id ' +
+            'WHERE lab_items_code IN ("321","329","377") ' +
+            'AND person_anc.person_anc_id = ? ' + 
+            'ORDER BY order_date DESC',
             [pid], (err, result, field) => {
                 if (err) {
                     console.log(err);
