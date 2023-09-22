@@ -165,7 +165,8 @@ app.get('/anc/:dstart/:dended', function (req, res) {
             'LEFT JOIN lab_head ON lab_head.vn = ovst.vn ' +
             'LEFT JOIN lab_order ON lab_order.lab_order_number = lab_head.lab_order_number ' +
             'WHERE icd10 IN("Z33","Z340","Z348") ' +
-            'AND lab_items_name_ref IN("Hb","HCT(30104)","HCT") ' +
+            // 'AND lab_items_name_ref IN("Hb","HCT(30104)","HCT") ' +
+            'AND lab_items_name_ref IN("Hb","HCT(30104)","HCT","Screen Down Syndrome","Hb typing (ANC)") ' +
             'AND ovst.vstdate BETWEEN ? AND ? ' +
             'ORDER BY ovstdiag.vstdate DESC',
             [dstart, dended], (err, result, field) => {
